@@ -1,0 +1,22 @@
+singer-sdk 0.54.9 (/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/S2/.venv/lib/python3.12/site-packages/singer_sdk/__init__.py)
+simpleeval 1.0.8 (/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/S2/.venv/lib/python3.12/site-packages/simpleeval.py)
+python 3.12.3 tz=('JST', 'JST')
+[eval_error ] issue_original_utcnow: datetime.datetime.utcnow().isoformat()
+    error: singer_sdk.exceptions.MapExpressionError: Failed to evaluate simpleeval expressions datetime.datetime.utcnow().isoformat().
+    caused by: simpleeval.AttributeDoesNotExist: Attribute 'datetime' does not exist in expression 'datetime.datetime.utcnow().isoformat()'
+    inferred type: {'type': ['string', 'null'], 'format': 'date-time'}
+[eval_error ] issue_example_year: int(datetime.date.fromisoformat(create_date).year)
+    error: singer_sdk.exceptions.MapExpressionError: Failed to evaluate simpleeval expressions int(datetime.date.fromisoformat(create_date).year).
+    caused by: simpleeval.AttributeDoesNotExist: Attribute 'date' does not exist in expression 'int(datetime.date.fromisoformat(create_date).year)'
+    inferred type: {'type': ['integer', 'null']}
+[   pass    ] control_field_ref: id
+    output: 1
+    inferred type: {'type': ['integer', 'null']}
+[   pass    ] control_string_method: owner_email.split('@')[1]
+    output: 'example.com'
+    inferred type: {'type': ['string', 'null']}
+[   pass    ] helper_json_dumps: json.dumps(user, default=str)
+    output: '{"name": "Alice", "age": 30}'
+    inferred type: {'type': ['string', 'null']}
+ALL_PASS=False
+RESULT_JSON=/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/S2/result.json

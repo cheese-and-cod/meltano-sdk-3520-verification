@@ -1,0 +1,1600 @@
+== worktree: a6fdc6a7567cac474d1f1c9b0cd715e708c09689 (tag v0.53.5) ==
+== baseline sync (uv.lock: simpleeval 1.0.3) ==
+Checked 95 packages in 340ms
+baseline simpleeval: 1.0.3
+
+== override simpleeval to 1.0.8 (satisfies >=0.9.13,!=1.0.1) ==
+Resolved 1 package in 8ms
+Uninstalled 1 package in 34ms
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 1 package in 64ms
+ - simpleeval==1.0.3
+ + simpleeval==1.0.8
+effective simpleeval: 1.0.8
+Checked 95 packages in 642ms
+All installed packages are compatible
+
+== pytest tests/core/test_mapper.py (simpleeval 1.0.8) ==
+F.................................FF...F                                 [100%]
+=================================== FAILURES ===================================
+_____________________________ test_map_transforms ______________________________
+
+self = <singer_sdk.mapper.CustomStreamMap object at 0x7f94e4d08aa0>
+expr = 'int(datetime.date.fromisoformat(create_date).year)'
+expr_parsed = <ast.Expr object at 0x7f94e4d77fd0>
+record = {'create_date': '2019-01-01', 'description': 'Comment A', 'name': 'tap-something', 'owner_email': 'sample1@example.com'}
+property_name = 'create_year'
+
+    def _eval(
+        self,
+        expr: str,
+        expr_parsed: ast.Expr,
+        record: dict,
+        property_name: str | None,
+    ) -> str | int | float:
+        """Solve an expression.
+    
+        Args:
+            expr: String expression to evaluate (used to raise human readable errors).
+            expr_parsed: Parsed expression abstract syntax tree.
+            record: Individual stream record.
+            property_name: Name of property to transform in the record.
+    
+        Returns:
+            Evaluated expression.
+    
+        Raises:
+            MapExpressionError: If the mapping expression failed to evaluate.
+        """
+        names = record.copy()  # Start with names from record properties
+        names["_"] = record  # Add a shorthand alias in case of reserved words in names
+        names["record"] = record  # ...and a longhand alias
+        names["config"] = self.map_config  # Allow map config access within transform
+        names["__stream_name__"] = self.stream_alias  # Access stream name in transform
+    
+        # Stream name (prior to aliasing, if applicable)
+        names["__original_stream_name__"] = self.stream_name
+    
+        if self.fake:
+            names["fake"] = self.fake
+    
+        if property_name and property_name in record:
+            # Allow access to original property value if applicable
+            names["self"] = record[property_name]
+        try:
+            self.expr_evaluator.names = names
+>           result: str | int | float = self.expr_evaluator.eval(
+                expr,
+                previously_parsed=expr_parsed,
+            )
+
+singer_sdk/mapper.py:365: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/simpleeval.py:929: in eval
+    return super().eval(expr, previously_parsed)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:663: in eval
+    return self._eval(previously_parsed or self.parse(expr))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:680: in _eval_expr
+    return self._eval(node.value)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:774: in _eval_call
+    return func(
+.venv/lib/python3.12/site-packages/simpleeval.py:775: in <genexpr>
+    *(self._eval(a) for a in node.args), **dict(self._eval(k) for k in node.keywords)
+      ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:762: in _eval_call
+    func = self._eval(node.func)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:676: in _eval
+    self._check_disallowed_items(result)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <simpleeval.EvalWithCompoundTypes object at 0x7f94e4e65430>
+item = <module 'datetime' from '/usr/lib/python3.12/datetime.py'>
+
+    def _check_disallowed_items(self, item):
+        """Check if item contains disallowed functions or modules.
+        Recursively checks containers (list, dict, tuple).
+        Raises FeatureNotAvailable if forbidden content found.
+        ModuleWrapper instances are allowed (explicit opt-in to module access).
+        """
+        # Fast path: primitive scalars are always safe (most common case)
+        if type(item) in _PRIMITIVE_TYPES:
+            return
+    
+        # Allow ModuleWrapper (explicit opt-in to module access)
+        if isinstance(item, ModuleWrapper):
+            return
+    
+        if isinstance(item, types.ModuleType):
+>           raise FeatureNotAvailable("Sorry, modules are not allowed")
+E           simpleeval.FeatureNotAvailable: Sorry, modules are not allowed
+
+.venv/lib/python3.12/site-packages/simpleeval.py:630: FeatureNotAvailable
+
+The above exception was the direct cause of the following exception:
+
+sample_stream = {'foobars': [{'the': 'quick'}, {'brown': 'fox'}], 'nested_jellybean': [{'custom_fields': [{'id': 1, 'value': 'abc'}, {..., 'description': 'Comment D', 'name': 'not-atap', 'owner_email': 'sample4@example.com'}], 'singular': [{'foo': 'bar'}]}
+sample_catalog_obj = {'repositories': CatalogEntry(tap_stream_id='repositories', metadata={}, schema=Schema(id=None, schema='https://json-s...ication_key=None, is_view=None, database=None, table=None, row_count=None, stream_alias=None, replication_method=None)}
+transform_stream_maps = {'nested_jellybean': {'custom_field_1': 'dict([(x["id"], x["value"]) for x in custom_fields]).get(1)', 'custom_field_2...(datetime.date.fromisoformat(create_date).year)', 'description': "'[masked]'", 'description2': "str('[masked]')", ...}}
+stream_map_config = {'hash_seed': 'super_secret_hash_seed'}
+transformed_result = {'foobars': [{'the': 'quick'}, {'brown': 'fox'}], 'nested_jellybean': [{'custom_field_1': 'abc', 'custom_field_2': 121...scription': '[masked]', 'description2': '[masked]', 'email_domain': 'example.com', ...}], 'singular': [{'foo': 'bar'}]}
+transformed_schemas = {'foobars': {'$schema': 'https://json-schema.org/draft/2020-12/schema', 'properties': {'brown': {'type': ['string', 'n...'https://json-schema.org/draft/2020-12/schema', 'properties': {'foo': {'type': ['string', 'null']}}, 'type': 'object'}}
+
+    def test_map_transforms(
+        sample_stream,
+        sample_catalog_obj,
+        transform_stream_maps,
+        stream_map_config,
+        transformed_result,
+        transformed_schemas,
+    ):
+>       _test_transform(
+            "transform",
+            stream_maps=transform_stream_maps,
+            stream_map_config=stream_map_config,
+            expected_result=transformed_result,
+            expected_schemas=transformed_schemas,
+            sample_stream=sample_stream,
+            sample_catalog_obj=sample_catalog_obj,
+        )
+
+tests/core/test_mapper.py:440: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/core/test_mapper.py:574: in _test_transform
+    output, output_schemas = _run_transform(
+tests/core/test_mapper.py:555: in _run_transform
+    result = stream_map.transform(record)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+singer_sdk/mapper.py:298: in transform
+    transformed_record = self._transform_fn(record)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+singer_sdk/mapper.py:627: in transform_fn
+    result[prop_key] = self._eval(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <singer_sdk.mapper.CustomStreamMap object at 0x7f94e4d08aa0>
+expr = 'int(datetime.date.fromisoformat(create_date).year)'
+expr_parsed = <ast.Expr object at 0x7f94e4d77fd0>
+record = {'create_date': '2019-01-01', 'description': 'Comment A', 'name': 'tap-something', 'owner_email': 'sample1@example.com'}
+property_name = 'create_year'
+
+    def _eval(
+        self,
+        expr: str,
+        expr_parsed: ast.Expr,
+        record: dict,
+        property_name: str | None,
+    ) -> str | int | float:
+        """Solve an expression.
+    
+        Args:
+            expr: String expression to evaluate (used to raise human readable errors).
+            expr_parsed: Parsed expression abstract syntax tree.
+            record: Individual stream record.
+            property_name: Name of property to transform in the record.
+    
+        Returns:
+            Evaluated expression.
+    
+        Raises:
+            MapExpressionError: If the mapping expression failed to evaluate.
+        """
+        names = record.copy()  # Start with names from record properties
+        names["_"] = record  # Add a shorthand alias in case of reserved words in names
+        names["record"] = record  # ...and a longhand alias
+        names["config"] = self.map_config  # Allow map config access within transform
+        names["__stream_name__"] = self.stream_alias  # Access stream name in transform
+    
+        # Stream name (prior to aliasing, if applicable)
+        names["__original_stream_name__"] = self.stream_name
+    
+        if self.fake:
+            names["fake"] = self.fake
+    
+        if property_name and property_name in record:
+            # Allow access to original property value if applicable
+            names["self"] = record[property_name]
+        try:
+            self.expr_evaluator.names = names
+            result: str | int | float = self.expr_evaluator.eval(
+                expr,
+                previously_parsed=expr_parsed,
+            )
+        except (simpleeval.InvalidExpression, SyntaxError) as ex:
+            msg = f"Failed to evaluate simpleeval expressions {expr}."
+>           raise MapExpressionError(msg) from ex
+E           singer_sdk.exceptions.MapExpressionError: Failed to evaluate simpleeval expressions int(datetime.date.fromisoformat(create_date).year).
+
+singer_sdk/mapper.py:371: MapExpressionError
+------------------------------ Captured log call -------------------------------
+INFO singer_sdk.mapper Detected `__else__=None` rule. Unmapped, non-key properties will be excluded from output.
+__________________________ test_mapped_stream[dates] ___________________________
+
+self = <singer_sdk.mapper.CustomStreamMap object at 0x7f94e4cf2660>
+expr = 'datetime.datetime.fromisoformat(joined_at).date()'
+expr_parsed = <ast.Expr object at 0x7f94e4d86210>
+record = {'count': 21, 'email': 'alice@example.com', 'joined_at': '2022-01-01T00:00:00Z', 'user': {'id': 1, 'some_numbers': [De...14'), Decimal('2.718')], 'sub': {'custom_obj': <tests.core.test_mapper.CustomObj object at 0x7f94e4cf2c00>, 'num': 1}}}
+property_name = 'joined_date'
+
+    def _eval(
+        self,
+        expr: str,
+        expr_parsed: ast.Expr,
+        record: dict,
+        property_name: str | None,
+    ) -> str | int | float:
+        """Solve an expression.
+    
+        Args:
+            expr: String expression to evaluate (used to raise human readable errors).
+            expr_parsed: Parsed expression abstract syntax tree.
+            record: Individual stream record.
+            property_name: Name of property to transform in the record.
+    
+        Returns:
+            Evaluated expression.
+    
+        Raises:
+            MapExpressionError: If the mapping expression failed to evaluate.
+        """
+        names = record.copy()  # Start with names from record properties
+        names["_"] = record  # Add a shorthand alias in case of reserved words in names
+        names["record"] = record  # ...and a longhand alias
+        names["config"] = self.map_config  # Allow map config access within transform
+        names["__stream_name__"] = self.stream_alias  # Access stream name in transform
+    
+        # Stream name (prior to aliasing, if applicable)
+        names["__original_stream_name__"] = self.stream_name
+    
+        if self.fake:
+            names["fake"] = self.fake
+    
+        if property_name and property_name in record:
+            # Allow access to original property value if applicable
+            names["self"] = record[property_name]
+        try:
+            self.expr_evaluator.names = names
+>           result: str | int | float = self.expr_evaluator.eval(
+                expr,
+                previously_parsed=expr_parsed,
+            )
+
+singer_sdk/mapper.py:365: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/simpleeval.py:929: in eval
+    return super().eval(expr, previously_parsed)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:663: in eval
+    return self._eval(previously_parsed or self.parse(expr))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:680: in _eval_expr
+    return self._eval(node.value)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:762: in _eval_call
+    func = self._eval(node.func)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:762: in _eval_call
+    func = self._eval(node.func)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:676: in _eval
+    self._check_disallowed_items(result)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <simpleeval.EvalWithCompoundTypes object at 0x7f94e4dfc470>
+item = <module 'datetime' from '/usr/lib/python3.12/datetime.py'>
+
+    def _check_disallowed_items(self, item):
+        """Check if item contains disallowed functions or modules.
+        Recursively checks containers (list, dict, tuple).
+        Raises FeatureNotAvailable if forbidden content found.
+        ModuleWrapper instances are allowed (explicit opt-in to module access).
+        """
+        # Fast path: primitive scalars are always safe (most common case)
+        if type(item) in _PRIMITIVE_TYPES:
+            return
+    
+        # Allow ModuleWrapper (explicit opt-in to module access)
+        if isinstance(item, ModuleWrapper):
+            return
+    
+        if isinstance(item, types.ModuleType):
+>           raise FeatureNotAvailable("Sorry, modules are not allowed")
+E           simpleeval.FeatureNotAvailable: Sorry, modules are not allowed
+
+.venv/lib/python3.12/site-packages/simpleeval.py:630: FeatureNotAvailable
+
+The above exception was the direct cause of the following exception:
+
+snapshot = <pytest_snapshot.plugin.Snapshot object at 0x7f94e4d8bb60>
+snapshot_dir = PosixPath('tests/snapshots')
+stream_maps = {'mystream': {'joined_date': 'datetime.datetime.fromisoformat(joined_at).date()', 'joined_timestamp': 'float(datetime....romisoformat(joined_at).timestamp())', 'some_datetime': "datetime.datetime.fromisoformat(config['some_date_string'])"}}
+config = {'stream_map_config': {'some_date_string': '2024-10-10T10:10:10Z'}}
+snapshot_name = 'dates.jsonl'
+
+    @time_machine.travel(
+        datetime.datetime(2022, 1, 1, tzinfo=datetime.timezone.utc),
+        tick=False,
+    )
+    @pytest.mark.snapshot
+    @pytest.mark.parametrize(
+        "stream_maps,config,snapshot_name",
+        [
+            pytest.param(
+                {},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "no_map.jsonl",
+                id="no_map",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "keep_all_fields.jsonl",
+                id="keep_all_fields",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                        "email_hash_sha256": "sha256(email)",
+                        "fixed_count": "int(count-1)",
+                        "__else__": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "only_mapped_fields.jsonl",
+                id="only_mapped_fields",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                        "fixed_count": "int(count-1)",
+                        "__else__": "__NULL__",
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "only_mapped_fields_null_string.jsonl",
+                id="only_mapped_fields_null_string",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                        "__key_properties__": ["email_hash"],
+                        "__else__": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "changed_key_properties.jsonl",
+                id="changed_key_properties",
+            ),
+            pytest.param(
+                {"mystream": None, "sourced_stream_1": {"__source__": "mystream"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "sourced_stream_1.jsonl",
+                id="sourced_stream_1",
+            ),
+            pytest.param(
+                {"mystream": "__NULL__", "sourced_stream_1": {"__source__": "mystream"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "sourced_stream_1_null_string.jsonl",
+                id="sourced_stream_1_null_string",
+            ),
+            pytest.param(
+                {"sourced_stream_2": {"__source__": "mystream"}, "__else__": None},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "sourced_stream_2.jsonl",
+                id="sourced_stream_2",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "aliased_stream"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "aliased_stream.jsonl",
+                id="aliased_stream",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "aliased_stream"}},
+                {
+                    "flattening_enabled": False,
+                    "flattening_max_depth": 0,
+                    "batch_config": {
+                        "encoding": {"format": "jsonl", "compression": "gzip"},
+                        "storage": {"root": "file:///tmp"},
+                    },
+                },
+                "aliased_stream_batch.jsonl",
+                id="aliased_stream_batch",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "aliased.stream"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "aliased_stream_not_expr.jsonl",
+                id="aliased_stream_not_expr",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "'__stream_name__'"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "aliased_stream_quoted.jsonl",
+                id="aliased_stream_quoted",
+            ),
+            pytest.param(
+                {"mystream": {"source_table": "__stream_name__"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_stream_name.jsonl",
+                id="builtin_variable_stream_name",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "'aliased_' + __stream_name__"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_stream_name_alias.jsonl",
+                id="builtin_variable_stream_name_alias",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "__stream_name__.upper()"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_stream_name_alias_expr.jsonl",
+                id="builtin_variable_stream_name_alias_expr",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "__alias__": "'aliased'",
+                        "stream_name": "__stream_name__",
+                        "original_stream_name": "__original_stream_name__",
+                    }
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_original_stream_name_alias.jsonl",
+                id="builtin_variable_original_stream_name_alias",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "stream_name": "__stream_name__",
+                        "original_stream_name": "__original_stream_name__",
+                    }
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_original_stream_name_no_alias.jsonl",
+                id="builtin_variable_original_stream_name_no_alias",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email": "self.upper()",
+                        "__else__": None,
+                    }
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_self.jsonl",
+                id="builtin_variable_self",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email": "_['email'].upper()",
+                        "__else__": None,
+                    }
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_underscore.jsonl",
+                id="builtin_variable_underscore",
+            ),
+            pytest.param(
+                {},
+                {"flattening_enabled": True, "flattening_max_depth": 0},
+                "flatten_depth_0.jsonl",
+                id="flatten_depth_0",
+            ),
+            pytest.param(
+                {},
+                {"flattening_enabled": True, "flattening_max_depth": 1},
+                "flatten_depth_1.jsonl",
+                id="flatten_depth_1",
+            ),
+            pytest.param(
+                {},
+                {"flattening_enabled": True, "flattening_max_depth": 2},
+                "flatten_all.jsonl",
+                id="flatten_all",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                        "__key_properties__": ["email_hash"],
+                    },
+                },
+                {"flattening_enabled": True, "flattening_max_depth": 10},
+                "map_and_flatten.jsonl",
+                id="map_and_flatten",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "drop_property.jsonl",
+                id="drop_property",
+            ),
+            pytest.param(
+                {"mystream": {"email": "__NULL__"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "drop_property_null_string.jsonl",
+                id="drop_property_null_string",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "count": "count",
+                        "__else__": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "non_pk_passthrough.jsonl",
+                id="non_pk_passthrough",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "_data": "record",
+                        "__else__": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "record_to_column.jsonl",
+                id="record_to_column",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "cc": "fake.credit_card_number()",
+                        "__else__": None,
+                    },
+                },
+                {
+                    "flattening_enabled": False,
+                    "flattening_max_depth": 0,
+                    "faker_config": {
+                        "locale": "en_US",
+                        "seed": 123456,
+                    },
+                },
+                "fake_credit_card_number.jsonl",
+                id="fake_credit_card_number",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email": "fake.seed_instance(email) or fake.email()",
+                        "__else__": None,
+                    },
+                },
+                {
+                    "flattening_enabled": False,
+                    "flattening_max_depth": 0,
+                    "faker_config": {
+                        "locale": "en_US",
+                    },
+                },
+                "fake_email_seed_instance.jsonl",
+                id="fake_email_seed_instance",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "joined_date": "datetime.datetime.fromisoformat(joined_at).date()",
+                        "joined_timestamp": "float(datetime.datetime.fromisoformat(joined_at).timestamp())",  # noqa: E501
+                        "some_datetime": "datetime.datetime.fromisoformat(config['some_date_string'])",  # noqa: E501
+                    },
+                },
+                {
+                    "stream_map_config": {
+                        "some_date_string": "2024-10-10T10:10:10Z",
+                    },
+                },
+                "dates.jsonl",
+                id="dates",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "user": "json.dumps(user, default=str)",
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "json_dumps.jsonl",
+                id="json_dumps",
+            ),
+            pytest.param(
+                {"mystream": {"__filter__": "count < 20"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "filter_records.jsonl",
+                id="filter_records",
+            ),
+            pytest.param(
+                {"mystream": {"__filter__": "bool(count < 20)"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "filter_records_cast_to_bool.jsonl",
+                id="filter_records_cast_to_bool",
+            ),
+            pytest.param(
+                {"mystream": "__NULL__"},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "remove_stream.jsonl",
+                id="remove_stream",
+            ),
+        ],
+    )
+    def test_mapped_stream(
+        snapshot: Snapshot,
+        snapshot_dir: Path,
+        stream_maps: dict,
+        config: dict,
+        snapshot_name: str,
+    ):
+        snapshot.snapshot_dir = snapshot_dir.joinpath("mapped_stream")
+    
+        tap = MappedTap(config={"stream_maps": stream_maps, **config}, validate_config=True)
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+>           tap.sync_all()
+
+tests/core/test_mapper.py:1012: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+singer_sdk/tap_base.py:495: in sync_all
+    stream.sync()
+singer_sdk/streams/core.py:1424: in sync
+    for _ in self._sync_records(context=context):
+singer_sdk/streams/core.py:1333: in _sync_records
+    self._write_record_message(record)
+singer_sdk/streams/core.py:1009: in _write_record_message
+    for record_message in self._generate_record_messages(record):
+singer_sdk/streams/core.py:972: in _generate_record_messages
+    mapped_record = stream_map.transform(record)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+singer_sdk/mapper.py:298: in transform
+    transformed_record = self._transform_fn(record)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+singer_sdk/mapper.py:627: in transform_fn
+    result[prop_key] = self._eval(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <singer_sdk.mapper.CustomStreamMap object at 0x7f94e4cf2660>
+expr = 'datetime.datetime.fromisoformat(joined_at).date()'
+expr_parsed = <ast.Expr object at 0x7f94e4d86210>
+record = {'count': 21, 'email': 'alice@example.com', 'joined_at': '2022-01-01T00:00:00Z', 'user': {'id': 1, 'some_numbers': [De...14'), Decimal('2.718')], 'sub': {'custom_obj': <tests.core.test_mapper.CustomObj object at 0x7f94e4cf2c00>, 'num': 1}}}
+property_name = 'joined_date'
+
+    def _eval(
+        self,
+        expr: str,
+        expr_parsed: ast.Expr,
+        record: dict,
+        property_name: str | None,
+    ) -> str | int | float:
+        """Solve an expression.
+    
+        Args:
+            expr: String expression to evaluate (used to raise human readable errors).
+            expr_parsed: Parsed expression abstract syntax tree.
+            record: Individual stream record.
+            property_name: Name of property to transform in the record.
+    
+        Returns:
+            Evaluated expression.
+    
+        Raises:
+            MapExpressionError: If the mapping expression failed to evaluate.
+        """
+        names = record.copy()  # Start with names from record properties
+        names["_"] = record  # Add a shorthand alias in case of reserved words in names
+        names["record"] = record  # ...and a longhand alias
+        names["config"] = self.map_config  # Allow map config access within transform
+        names["__stream_name__"] = self.stream_alias  # Access stream name in transform
+    
+        # Stream name (prior to aliasing, if applicable)
+        names["__original_stream_name__"] = self.stream_name
+    
+        if self.fake:
+            names["fake"] = self.fake
+    
+        if property_name and property_name in record:
+            # Allow access to original property value if applicable
+            names["self"] = record[property_name]
+        try:
+            self.expr_evaluator.names = names
+            result: str | int | float = self.expr_evaluator.eval(
+                expr,
+                previously_parsed=expr_parsed,
+            )
+        except (simpleeval.InvalidExpression, SyntaxError) as ex:
+            msg = f"Failed to evaluate simpleeval expressions {expr}."
+>           raise MapExpressionError(msg) from ex
+E           singer_sdk.exceptions.MapExpressionError: Failed to evaluate simpleeval expressions datetime.datetime.fromisoformat(joined_at).date().
+
+singer_sdk/mapper.py:371: MapExpressionError
+------------------------------ Captured log call -------------------------------
+INFO tap-mapped Skipping parse of env var settings...
+INFO tap-mapped.mystream Beginning sync of 'mystream' in full_table mode
+INFO singer_sdk.metrics METRIC: {"type":"timer","metric":"sync_duration","value":0.0,"tags":{"stream":"mystream","pid":385,"context":{},"status":"failed"}}
+INFO singer_sdk.metrics METRIC: {"type":"counter","metric":"record_count","value":0,"tags":{"stream":"mystream","pid":385,"context":{}}}
+ERROR tap-mapped.mystream An unhandled error occurred while syncing 'mystream'
+________________________ test_mapped_stream[json_dumps] ________________________
+
+self = <singer_sdk.mapper.CustomStreamMap object at 0x7f94e4cf2ab0>
+expr = 'json.dumps(user, default=str)'
+expr_parsed = <ast.Expr object at 0x7f94e4a61c50>
+record = {'count': 21, 'email': 'alice@example.com', 'joined_at': '2022-01-01T00:00:00Z', 'user': {'id': 1, 'some_numbers': [De...14'), Decimal('2.718')], 'sub': {'custom_obj': <tests.core.test_mapper.CustomObj object at 0x7f94e4dfd550>, 'num': 1}}}
+property_name = 'user'
+
+    def _eval(
+        self,
+        expr: str,
+        expr_parsed: ast.Expr,
+        record: dict,
+        property_name: str | None,
+    ) -> str | int | float:
+        """Solve an expression.
+    
+        Args:
+            expr: String expression to evaluate (used to raise human readable errors).
+            expr_parsed: Parsed expression abstract syntax tree.
+            record: Individual stream record.
+            property_name: Name of property to transform in the record.
+    
+        Returns:
+            Evaluated expression.
+    
+        Raises:
+            MapExpressionError: If the mapping expression failed to evaluate.
+        """
+        names = record.copy()  # Start with names from record properties
+        names["_"] = record  # Add a shorthand alias in case of reserved words in names
+        names["record"] = record  # ...and a longhand alias
+        names["config"] = self.map_config  # Allow map config access within transform
+        names["__stream_name__"] = self.stream_alias  # Access stream name in transform
+    
+        # Stream name (prior to aliasing, if applicable)
+        names["__original_stream_name__"] = self.stream_name
+    
+        if self.fake:
+            names["fake"] = self.fake
+    
+        if property_name and property_name in record:
+            # Allow access to original property value if applicable
+            names["self"] = record[property_name]
+        try:
+            self.expr_evaluator.names = names
+>           result: str | int | float = self.expr_evaluator.eval(
+                expr,
+                previously_parsed=expr_parsed,
+            )
+
+singer_sdk/mapper.py:365: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/simpleeval.py:929: in eval
+    return super().eval(expr, previously_parsed)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:663: in eval
+    return self._eval(previously_parsed or self.parse(expr))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:680: in _eval_expr
+    return self._eval(node.value)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:762: in _eval_call
+    func = self._eval(node.func)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:676: in _eval
+    self._check_disallowed_items(result)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <simpleeval.EvalWithCompoundTypes object at 0x7f94e4cf1220>
+item = <module 'json' from '/usr/lib/python3.12/json/__init__.py'>
+
+    def _check_disallowed_items(self, item):
+        """Check if item contains disallowed functions or modules.
+        Recursively checks containers (list, dict, tuple).
+        Raises FeatureNotAvailable if forbidden content found.
+        ModuleWrapper instances are allowed (explicit opt-in to module access).
+        """
+        # Fast path: primitive scalars are always safe (most common case)
+        if type(item) in _PRIMITIVE_TYPES:
+            return
+    
+        # Allow ModuleWrapper (explicit opt-in to module access)
+        if isinstance(item, ModuleWrapper):
+            return
+    
+        if isinstance(item, types.ModuleType):
+>           raise FeatureNotAvailable("Sorry, modules are not allowed")
+E           simpleeval.FeatureNotAvailable: Sorry, modules are not allowed
+
+.venv/lib/python3.12/site-packages/simpleeval.py:630: FeatureNotAvailable
+
+The above exception was the direct cause of the following exception:
+
+snapshot = <pytest_snapshot.plugin.Snapshot object at 0x7f94e4cf2ea0>
+snapshot_dir = PosixPath('tests/snapshots')
+stream_maps = {'mystream': {'user': 'json.dumps(user, default=str)'}}
+config = {'flattening_enabled': False, 'flattening_max_depth': 0}
+snapshot_name = 'json_dumps.jsonl'
+
+    @time_machine.travel(
+        datetime.datetime(2022, 1, 1, tzinfo=datetime.timezone.utc),
+        tick=False,
+    )
+    @pytest.mark.snapshot
+    @pytest.mark.parametrize(
+        "stream_maps,config,snapshot_name",
+        [
+            pytest.param(
+                {},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "no_map.jsonl",
+                id="no_map",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "keep_all_fields.jsonl",
+                id="keep_all_fields",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                        "email_hash_sha256": "sha256(email)",
+                        "fixed_count": "int(count-1)",
+                        "__else__": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "only_mapped_fields.jsonl",
+                id="only_mapped_fields",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                        "fixed_count": "int(count-1)",
+                        "__else__": "__NULL__",
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "only_mapped_fields_null_string.jsonl",
+                id="only_mapped_fields_null_string",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                        "__key_properties__": ["email_hash"],
+                        "__else__": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "changed_key_properties.jsonl",
+                id="changed_key_properties",
+            ),
+            pytest.param(
+                {"mystream": None, "sourced_stream_1": {"__source__": "mystream"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "sourced_stream_1.jsonl",
+                id="sourced_stream_1",
+            ),
+            pytest.param(
+                {"mystream": "__NULL__", "sourced_stream_1": {"__source__": "mystream"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "sourced_stream_1_null_string.jsonl",
+                id="sourced_stream_1_null_string",
+            ),
+            pytest.param(
+                {"sourced_stream_2": {"__source__": "mystream"}, "__else__": None},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "sourced_stream_2.jsonl",
+                id="sourced_stream_2",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "aliased_stream"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "aliased_stream.jsonl",
+                id="aliased_stream",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "aliased_stream"}},
+                {
+                    "flattening_enabled": False,
+                    "flattening_max_depth": 0,
+                    "batch_config": {
+                        "encoding": {"format": "jsonl", "compression": "gzip"},
+                        "storage": {"root": "file:///tmp"},
+                    },
+                },
+                "aliased_stream_batch.jsonl",
+                id="aliased_stream_batch",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "aliased.stream"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "aliased_stream_not_expr.jsonl",
+                id="aliased_stream_not_expr",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "'__stream_name__'"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "aliased_stream_quoted.jsonl",
+                id="aliased_stream_quoted",
+            ),
+            pytest.param(
+                {"mystream": {"source_table": "__stream_name__"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_stream_name.jsonl",
+                id="builtin_variable_stream_name",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "'aliased_' + __stream_name__"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_stream_name_alias.jsonl",
+                id="builtin_variable_stream_name_alias",
+            ),
+            pytest.param(
+                {"mystream": {"__alias__": "__stream_name__.upper()"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_stream_name_alias_expr.jsonl",
+                id="builtin_variable_stream_name_alias_expr",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "__alias__": "'aliased'",
+                        "stream_name": "__stream_name__",
+                        "original_stream_name": "__original_stream_name__",
+                    }
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_original_stream_name_alias.jsonl",
+                id="builtin_variable_original_stream_name_alias",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "stream_name": "__stream_name__",
+                        "original_stream_name": "__original_stream_name__",
+                    }
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_original_stream_name_no_alias.jsonl",
+                id="builtin_variable_original_stream_name_no_alias",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email": "self.upper()",
+                        "__else__": None,
+                    }
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_self.jsonl",
+                id="builtin_variable_self",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email": "_['email'].upper()",
+                        "__else__": None,
+                    }
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "builtin_variable_underscore.jsonl",
+                id="builtin_variable_underscore",
+            ),
+            pytest.param(
+                {},
+                {"flattening_enabled": True, "flattening_max_depth": 0},
+                "flatten_depth_0.jsonl",
+                id="flatten_depth_0",
+            ),
+            pytest.param(
+                {},
+                {"flattening_enabled": True, "flattening_max_depth": 1},
+                "flatten_depth_1.jsonl",
+                id="flatten_depth_1",
+            ),
+            pytest.param(
+                {},
+                {"flattening_enabled": True, "flattening_max_depth": 2},
+                "flatten_all.jsonl",
+                id="flatten_all",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email_hash": "md5(email)",
+                        "__key_properties__": ["email_hash"],
+                    },
+                },
+                {"flattening_enabled": True, "flattening_max_depth": 10},
+                "map_and_flatten.jsonl",
+                id="map_and_flatten",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "drop_property.jsonl",
+                id="drop_property",
+            ),
+            pytest.param(
+                {"mystream": {"email": "__NULL__"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "drop_property_null_string.jsonl",
+                id="drop_property_null_string",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "count": "count",
+                        "__else__": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "non_pk_passthrough.jsonl",
+                id="non_pk_passthrough",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "_data": "record",
+                        "__else__": None,
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "record_to_column.jsonl",
+                id="record_to_column",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "cc": "fake.credit_card_number()",
+                        "__else__": None,
+                    },
+                },
+                {
+                    "flattening_enabled": False,
+                    "flattening_max_depth": 0,
+                    "faker_config": {
+                        "locale": "en_US",
+                        "seed": 123456,
+                    },
+                },
+                "fake_credit_card_number.jsonl",
+                id="fake_credit_card_number",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "email": "fake.seed_instance(email) or fake.email()",
+                        "__else__": None,
+                    },
+                },
+                {
+                    "flattening_enabled": False,
+                    "flattening_max_depth": 0,
+                    "faker_config": {
+                        "locale": "en_US",
+                    },
+                },
+                "fake_email_seed_instance.jsonl",
+                id="fake_email_seed_instance",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "joined_date": "datetime.datetime.fromisoformat(joined_at).date()",
+                        "joined_timestamp": "float(datetime.datetime.fromisoformat(joined_at).timestamp())",  # noqa: E501
+                        "some_datetime": "datetime.datetime.fromisoformat(config['some_date_string'])",  # noqa: E501
+                    },
+                },
+                {
+                    "stream_map_config": {
+                        "some_date_string": "2024-10-10T10:10:10Z",
+                    },
+                },
+                "dates.jsonl",
+                id="dates",
+            ),
+            pytest.param(
+                {
+                    "mystream": {
+                        "user": "json.dumps(user, default=str)",
+                    },
+                },
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "json_dumps.jsonl",
+                id="json_dumps",
+            ),
+            pytest.param(
+                {"mystream": {"__filter__": "count < 20"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "filter_records.jsonl",
+                id="filter_records",
+            ),
+            pytest.param(
+                {"mystream": {"__filter__": "bool(count < 20)"}},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "filter_records_cast_to_bool.jsonl",
+                id="filter_records_cast_to_bool",
+            ),
+            pytest.param(
+                {"mystream": "__NULL__"},
+                {"flattening_enabled": False, "flattening_max_depth": 0},
+                "remove_stream.jsonl",
+                id="remove_stream",
+            ),
+        ],
+    )
+    def test_mapped_stream(
+        snapshot: Snapshot,
+        snapshot_dir: Path,
+        stream_maps: dict,
+        config: dict,
+        snapshot_name: str,
+    ):
+        snapshot.snapshot_dir = snapshot_dir.joinpath("mapped_stream")
+    
+        tap = MappedTap(config={"stream_maps": stream_maps, **config}, validate_config=True)
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+>           tap.sync_all()
+
+tests/core/test_mapper.py:1012: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+singer_sdk/tap_base.py:495: in sync_all
+    stream.sync()
+singer_sdk/streams/core.py:1424: in sync
+    for _ in self._sync_records(context=context):
+singer_sdk/streams/core.py:1333: in _sync_records
+    self._write_record_message(record)
+singer_sdk/streams/core.py:1009: in _write_record_message
+    for record_message in self._generate_record_messages(record):
+singer_sdk/streams/core.py:972: in _generate_record_messages
+    mapped_record = stream_map.transform(record)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+singer_sdk/mapper.py:298: in transform
+    transformed_record = self._transform_fn(record)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+singer_sdk/mapper.py:627: in transform_fn
+    result[prop_key] = self._eval(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <singer_sdk.mapper.CustomStreamMap object at 0x7f94e4cf2ab0>
+expr = 'json.dumps(user, default=str)'
+expr_parsed = <ast.Expr object at 0x7f94e4a61c50>
+record = {'count': 21, 'email': 'alice@example.com', 'joined_at': '2022-01-01T00:00:00Z', 'user': {'id': 1, 'some_numbers': [De...14'), Decimal('2.718')], 'sub': {'custom_obj': <tests.core.test_mapper.CustomObj object at 0x7f94e4dfd550>, 'num': 1}}}
+property_name = 'user'
+
+    def _eval(
+        self,
+        expr: str,
+        expr_parsed: ast.Expr,
+        record: dict,
+        property_name: str | None,
+    ) -> str | int | float:
+        """Solve an expression.
+    
+        Args:
+            expr: String expression to evaluate (used to raise human readable errors).
+            expr_parsed: Parsed expression abstract syntax tree.
+            record: Individual stream record.
+            property_name: Name of property to transform in the record.
+    
+        Returns:
+            Evaluated expression.
+    
+        Raises:
+            MapExpressionError: If the mapping expression failed to evaluate.
+        """
+        names = record.copy()  # Start with names from record properties
+        names["_"] = record  # Add a shorthand alias in case of reserved words in names
+        names["record"] = record  # ...and a longhand alias
+        names["config"] = self.map_config  # Allow map config access within transform
+        names["__stream_name__"] = self.stream_alias  # Access stream name in transform
+    
+        # Stream name (prior to aliasing, if applicable)
+        names["__original_stream_name__"] = self.stream_name
+    
+        if self.fake:
+            names["fake"] = self.fake
+    
+        if property_name and property_name in record:
+            # Allow access to original property value if applicable
+            names["self"] = record[property_name]
+        try:
+            self.expr_evaluator.names = names
+            result: str | int | float = self.expr_evaluator.eval(
+                expr,
+                previously_parsed=expr_parsed,
+            )
+        except (simpleeval.InvalidExpression, SyntaxError) as ex:
+            msg = f"Failed to evaluate simpleeval expressions {expr}."
+>           raise MapExpressionError(msg) from ex
+E           singer_sdk.exceptions.MapExpressionError: Failed to evaluate simpleeval expressions json.dumps(user, default=str).
+
+singer_sdk/mapper.py:371: MapExpressionError
+------------------------------ Captured log call -------------------------------
+INFO tap-mapped Skipping parse of env var settings...
+INFO tap-mapped.mystream Beginning sync of 'mystream' in full_table mode
+INFO singer_sdk.metrics METRIC: {"type":"timer","metric":"sync_duration","value":0.0,"tags":{"stream":"mystream","pid":385,"context":{},"status":"failed"}}
+INFO singer_sdk.metrics METRIC: {"type":"counter","metric":"record_count","value":0,"tags":{"stream":"mystream","pid":385,"context":{}}}
+ERROR tap-mapped.mystream An unhandled error occurred while syncing 'mystream'
+_______________________ test_bench_simple_map_transforms _______________________
+
+self = <singer_sdk.mapper.CustomStreamMap object at 0x7f94e4cf26c0>
+expr = 'int(datetime.date.fromisoformat(create_date).year)'
+expr_parsed = <ast.Expr object at 0x7f94e4bfa410>
+record = {'create_date': '2019-01-01', 'description': 'Comment A', 'name': 'tap-something', 'owner_email': 'sample1@example.com'}
+property_name = 'create_year'
+
+    def _eval(
+        self,
+        expr: str,
+        expr_parsed: ast.Expr,
+        record: dict,
+        property_name: str | None,
+    ) -> str | int | float:
+        """Solve an expression.
+    
+        Args:
+            expr: String expression to evaluate (used to raise human readable errors).
+            expr_parsed: Parsed expression abstract syntax tree.
+            record: Individual stream record.
+            property_name: Name of property to transform in the record.
+    
+        Returns:
+            Evaluated expression.
+    
+        Raises:
+            MapExpressionError: If the mapping expression failed to evaluate.
+        """
+        names = record.copy()  # Start with names from record properties
+        names["_"] = record  # Add a shorthand alias in case of reserved words in names
+        names["record"] = record  # ...and a longhand alias
+        names["config"] = self.map_config  # Allow map config access within transform
+        names["__stream_name__"] = self.stream_alias  # Access stream name in transform
+    
+        # Stream name (prior to aliasing, if applicable)
+        names["__original_stream_name__"] = self.stream_name
+    
+        if self.fake:
+            names["fake"] = self.fake
+    
+        if property_name and property_name in record:
+            # Allow access to original property value if applicable
+            names["self"] = record[property_name]
+        try:
+            self.expr_evaluator.names = names
+>           result: str | int | float = self.expr_evaluator.eval(
+                expr,
+                previously_parsed=expr_parsed,
+            )
+
+singer_sdk/mapper.py:365: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/simpleeval.py:929: in eval
+    return super().eval(expr, previously_parsed)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:663: in eval
+    return self._eval(previously_parsed or self.parse(expr))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:680: in _eval_expr
+    return self._eval(node.value)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:774: in _eval_call
+    return func(
+.venv/lib/python3.12/site-packages/simpleeval.py:775: in <genexpr>
+    *(self._eval(a) for a in node.args), **dict(self._eval(k) for k in node.keywords)
+      ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:762: in _eval_call
+    func = self._eval(node.func)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:675: in _eval
+    result = handler(node)
+             ^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:829: in _eval_attribute
+    node_evaluated = self._eval(node.value)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/simpleeval.py:676: in _eval
+    self._check_disallowed_items(result)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <simpleeval.EvalWithCompoundTypes object at 0x7f94e4d8a450>
+item = <module 'datetime' from '/usr/lib/python3.12/datetime.py'>
+
+    def _check_disallowed_items(self, item):
+        """Check if item contains disallowed functions or modules.
+        Recursively checks containers (list, dict, tuple).
+        Raises FeatureNotAvailable if forbidden content found.
+        ModuleWrapper instances are allowed (explicit opt-in to module access).
+        """
+        # Fast path: primitive scalars are always safe (most common case)
+        if type(item) in _PRIMITIVE_TYPES:
+            return
+    
+        # Allow ModuleWrapper (explicit opt-in to module access)
+        if isinstance(item, ModuleWrapper):
+            return
+    
+        if isinstance(item, types.ModuleType):
+>           raise FeatureNotAvailable("Sorry, modules are not allowed")
+E           simpleeval.FeatureNotAvailable: Sorry, modules are not allowed
+
+.venv/lib/python3.12/site-packages/simpleeval.py:630: FeatureNotAvailable
+
+The above exception was the direct cause of the following exception:
+
+benchmark = <pytest_benchmark.fixture.BenchmarkFixture object at 0x7f94e4cf09b0>
+sample_stream = {'foobars': [{'the': 'quick'}, {'brown': 'fox'}], 'nested_jellybean': [{'custom_fields': [{'id': 1, 'value': 'abc'}, {..., 'description': 'Comment D', 'name': 'not-atap', 'owner_email': 'sample4@example.com'}], 'singular': [{'foo': 'bar'}]}
+sample_catalog_dict = {'streams': [{'schema': {'$schema': 'https://json-schema.org/draft/2020-12/schema', 'properties': {'create_date': {'ty...[...]}, 'id': {'type': [...]}}, 'type': 'object'}, 'stream': 'nested_jellybean', 'tap_stream_id': 'nested_jellybean'}]}
+transform_stream_maps = {'nested_jellybean': {'custom_field_1': 'dict([(x["id"], x["value"]) for x in custom_fields]).get(1)', 'custom_field_2...(datetime.date.fromisoformat(create_date).year)', 'description': "'[masked]'", 'description2': "str('[masked]')", ...}}
+stream_map_config = {'hash_seed': 'super_secret_hash_seed'}
+
+    def test_bench_simple_map_transforms(
+        benchmark,
+        sample_stream,
+        sample_catalog_dict,
+        transform_stream_maps,
+        stream_map_config,
+    ):
+        """Run benchmark tests using the "repositories" stream."""
+        stream_size_scale = 1000
+    
+        repositories_catalog = {
+            "streams": [
+                x
+                for x in sample_catalog_dict["streams"]
+                if x["tap_stream_id"] == "repositories"
+            ],
+        }
+    
+        repositories_sample_stream = {
+            "repositories": sample_stream["repositories"] * stream_size_scale,
+        }
+        repositories_transform_stream_maps = {
+            "repositories": transform_stream_maps["repositories"],
+        }
+        repositories_sample_catalog_obj = Catalog.from_dict(repositories_catalog)
+>       benchmark(
+            _run_transform,
+            stream_maps=repositories_transform_stream_maps,
+            stream_map_config=stream_map_config,
+            sample_stream=repositories_sample_stream,
+            sample_catalog_obj=repositories_sample_catalog_obj,
+        )
+
+tests/core/test_mapper.py:1043: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/pytest_benchmark/fixture.py:184: in __call__
+    return self._raw(function_to_benchmark, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pytest_benchmark/fixture.py:216: in _raw
+    duration, iterations, loops_range = self._calibrate_timer(runner)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pytest_benchmark/fixture.py:370: in _calibrate_timer
+    duration = runner(loops_range)
+               ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pytest_benchmark/fixture.py:138: in runner
+    function_to_benchmark(*args, **kwargs)
+tests/core/test_mapper.py:555: in _run_transform
+    result = stream_map.transform(record)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+singer_sdk/mapper.py:298: in transform
+    transformed_record = self._transform_fn(record)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+singer_sdk/mapper.py:627: in transform_fn
+    result[prop_key] = self._eval(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <singer_sdk.mapper.CustomStreamMap object at 0x7f94e4cf26c0>
+expr = 'int(datetime.date.fromisoformat(create_date).year)'
+expr_parsed = <ast.Expr object at 0x7f94e4bfa410>
+record = {'create_date': '2019-01-01', 'description': 'Comment A', 'name': 'tap-something', 'owner_email': 'sample1@example.com'}
+property_name = 'create_year'
+
+    def _eval(
+        self,
+        expr: str,
+        expr_parsed: ast.Expr,
+        record: dict,
+        property_name: str | None,
+    ) -> str | int | float:
+        """Solve an expression.
+    
+        Args:
+            expr: String expression to evaluate (used to raise human readable errors).
+            expr_parsed: Parsed expression abstract syntax tree.
+            record: Individual stream record.
+            property_name: Name of property to transform in the record.
+    
+        Returns:
+            Evaluated expression.
+    
+        Raises:
+            MapExpressionError: If the mapping expression failed to evaluate.
+        """
+        names = record.copy()  # Start with names from record properties
+        names["_"] = record  # Add a shorthand alias in case of reserved words in names
+        names["record"] = record  # ...and a longhand alias
+        names["config"] = self.map_config  # Allow map config access within transform
+        names["__stream_name__"] = self.stream_alias  # Access stream name in transform
+    
+        # Stream name (prior to aliasing, if applicable)
+        names["__original_stream_name__"] = self.stream_name
+    
+        if self.fake:
+            names["fake"] = self.fake
+    
+        if property_name and property_name in record:
+            # Allow access to original property value if applicable
+            names["self"] = record[property_name]
+        try:
+            self.expr_evaluator.names = names
+            result: str | int | float = self.expr_evaluator.eval(
+                expr,
+                previously_parsed=expr_parsed,
+            )
+        except (simpleeval.InvalidExpression, SyntaxError) as ex:
+            msg = f"Failed to evaluate simpleeval expressions {expr}."
+>           raise MapExpressionError(msg) from ex
+E           singer_sdk.exceptions.MapExpressionError: Failed to evaluate simpleeval expressions int(datetime.date.fromisoformat(create_date).year).
+
+singer_sdk/mapper.py:371: MapExpressionError
+------------------------------ Captured log call -------------------------------
+INFO singer_sdk.mapper Detected `__else__=None` rule. Unmapped, non-key properties will be excluded from output.
+=============================== warnings summary ===============================
+tests/conftest.py:12
+  /mnt/c/Projects/oss/meltano-sdk-wt-v0.53.5/tests/conftest.py:12: SingerSDKDeprecationWarning: Importing SQLTarget from singer_sdk is deprecated. Please import from singer_sdk.sql instead: from singer_sdk.sql import SQLTarget
+    from singer_sdk import SQLTarget
+
+tests/conftest.py:14
+  /mnt/c/Projects/oss/meltano-sdk-wt-v0.53.5/tests/conftest.py:14: SingerSDKDeprecationWarning: Importing SQLConnector from singer_sdk.connectors.sql is deprecated and will be removed in the next release. Please import from singer_sdk.sql instead.
+    from singer_sdk.connectors.sql import SQLConnector
+
+tests/conftest.py:18
+  /mnt/c/Projects/oss/meltano-sdk-wt-v0.53.5/tests/conftest.py:18: SingerSDKDeprecationWarning: Importing SQLSink from singer_sdk.sinks.sql is deprecated. Please import from singer_sdk.sql instead.
+    from singer_sdk.sinks.sql import SQLSink
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 10 durations =============================
+3.85s setup    tests/core/test_mapper.py::test_map_transforms
+1.00s call     tests/core/test_mapper.py::test_bench_simple_map_transforms
+0.02s call     tests/core/test_mapper.py::test_mapped_stream[aliased_stream]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[keep_all_fields]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[non_pk_passthrough]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[no_map]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[builtin_variable_underscore]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[only_mapped_fields]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[changed_key_properties]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[fake_email_seed_instance]
+=========================== short test summary info ============================
+FAILED tests/core/test_mapper.py::test_map_transforms - singer_sdk.exceptions...
+FAILED tests/core/test_mapper.py::test_mapped_stream[dates] - singer_sdk.exce...
+FAILED tests/core/test_mapper.py::test_mapped_stream[json_dumps] - singer_sdk...
+FAILED tests/core/test_mapper.py::test_bench_simple_map_transforms - singer_s...
+4 failed, 36 passed, 3 warnings in 9.84s
+pytest exit: 1
+
+== restore locked env ==
+Uninstalled 1 package in 35ms
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 1 package in 68ms
+ - simpleeval==1.0.8
+ + simpleeval==1.0.3
+restored simpleeval: 1.0.3

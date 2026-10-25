@@ -1,0 +1,21 @@
+singer-sdk 0.55.0b8.dev5+g6d61a4090 (/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/E/.venv/lib/python3.12/site-packages/singer_sdk/__init__.py)
+simpleeval 1.0.8 (/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/E/.venv/lib/python3.12/site-packages/simpleeval.py)
+python 3.12.3 tz=('JST', 'JST')
+[   pass    ] issue_original_utcnow: datetime.datetime.utcnow().isoformat()
+    output: '2026-10-25T06:17:44.838381'
+    inferred type: {'type': ['string', 'null'], 'format': 'date-time'}
+    warning: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+[   pass    ] issue_example_year: int(datetime.date.fromisoformat(create_date).year)
+    output: 2026
+    inferred type: {'type': ['integer', 'null']}
+[   pass    ] control_field_ref: id
+    output: 1
+    inferred type: {'type': ['integer', 'null']}
+[   pass    ] control_string_method: owner_email.split('@')[1]
+    output: 'example.com'
+    inferred type: {'type': ['string', 'null']}
+[   pass    ] helper_json_dumps: json.dumps(user, default=str)
+    output: '{"name": "Alice", "age": 30}'
+    inferred type: {'type': ['string', 'null']}
+ALL_PASS=True
+RESULT_JSON=/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/E/result.json

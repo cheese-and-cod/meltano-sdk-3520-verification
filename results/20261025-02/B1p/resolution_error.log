@@ -1,0 +1,17 @@
+# Command attempted (WSL2 Ubuntu, uv 0.13.5):
+uv venv --clear --python /usr/bin/python3.12 .venv
+uv pip install --python .venv/bin/python "singer-sdk==0.53.5" "simpleeval==1.0.1"
+
+Using CPython 3.12.3 interpreter at: /usr/bin/python3.12
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
+error: No solution found when resolving dependencies
+  cause: Because singer-sdk==0.53.5 depends on one of:
+             simpleeval>=0.9.13,<1.0.1
+             simpleeval>1.0.1
+         and you require singer-sdk==0.53.5, we can conclude that you require one of:
+             simpleeval>=0.9.13,<1.0.1
+             simpleeval>1.0.1
+
+         And because you require simpleeval==1.0.1, we can conclude that your requirements are unsatisfiable.
+installer exit code: 1

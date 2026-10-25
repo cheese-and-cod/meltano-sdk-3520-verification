@@ -1,0 +1,151 @@
+== 6d61a40909b9c81d76c14cb8deffa3b619dc7839 worktree: 6d61a40909b9c81d76c14cb8deffa3b619dc7839
+Using CPython 3.12.3 interpreter at: /usr/bin/python3.12
+Creating virtual environment at: .venv
+   Building singer-sdk @ file:///mnt/c/Projects/oss/meltano-sdk-wt-main-6d61a40
+Downloading pygments (1.2MiB)
+Downloading nanoarrow (1.1MiB)
+Downloading pyarrow (51.4MiB)
+Downloading mypy (14.8MiB)
+Downloading sphinx (3.7MiB)
+Downloading ast-serialize (1.3MiB)
+Downloading ty (13.8MiB)
+ Downloaded pygments
+ Downloaded ast-serialize
+ Downloaded sphinx
+ Downloaded nanoarrow
+ Downloaded ty
+ Downloaded mypy
+ Downloaded pyarrow
+      Built singer-sdk @ file:///mnt/c/Projects/oss/meltano-sdk-wt-main-6d61a40
+Prepared 43 packages in 4.54s
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 96 packages in 19.29s
+ + accessible-pygments==0.0.5
+ + alabaster==1.0.0
+ + ast-serialize==0.13.1
+ + attrs==26.1.0
+ + babel==2.18.0
+ + backports-datetime-fromisoformat==2.0.3
+ + backports-zstd==1.8.0
+ + beautifulsoup4==4.15.0
+ + cattrs==26.2.1
+ + certifi==2026.10.23
+ + charset-normalizer==3.5.2
+ + click==8.5.0
+ + cloudpickle==3.1.2
+ + coverage==7.17.0
+ + deptry==0.25.1
+ + dirty-equals==0.11
+ + docutils==0.22.4
+ + fastjsonschema==2.22.2
+ + fsspec==2026.9.0
+ + furo==2025.12.19
+ + idna==3.20
+ + imagesize==2.0.1
+ + importlib-metadata==10.0.0
+ + inflection==0.5.1
+ + iniconfig==2.3.1
+ + jinja2==3.1.6
+ + joblib==1.6.0
+ + jsonpath-ng==1.13.0
+ + jsonschema==4.26.0
+ + jsonschema-specifications==2025.9.1
+ + librt==0.16.0
+ + markdown-it-py==4.2.0
+ + markupsafe==3.0.4
+ + mdit-py-plugins==0.6.1
+ + mdurl==0.1.2
+ + mypy==2.4.0
+ + mypy-extensions==1.1.0
+ + myst-parser==5.1.0
+ + nanoarrow==0.9.0
+ + packaging==26.3
+ + pathlib-abc==0.5.2
+ + pathspec==1.1.1
+ + platformdirs==4.13.5
+ + pluggy==1.7.0
+ + py-cpuinfo2==10.1.1
+ + pyarrow==26.0.0
+ + pyarrow-stubs==20.0.0.20260819
+ + pygments==2.21.0
+ + pytest==9.1.1
+ + pytest-benchmark==5.3.0
+ + pytest-github-actions-annotate-failures==0.4.2
+ + pytest-snapshot==0.9.0
+ + python-backoff==3.0.0
+ + python-dotenv==1.2.4
+ + pyyaml==6.0.3
+ + referencing==0.37.0
+ + requests==2.34.2
+ + requests-cache==1.3.3
+ + requests-mock==1.12.1
+ + requirements-parser==0.13.1
+ + responses==0.26.3
+ + rfc3339-validator==0.1.4
+ + roman-numerals==4.1.0
+ + rpds-py==2026.9.1
+ + simpleeval==1.0.8
+ + simplejson==4.2.0
+ + singer-sdk==0.55.0b8.dev5+g6d61a4090 (from file:///mnt/c/Projects/oss/meltano-sdk-wt-main-6d61a40)
+ + six==1.17.0
+ + snowballstemmer==3.1.1
+ + soupsieve==3.0.4
+ + sphinx==9.1.1
+ + sphinx-basic-ng==1.0.0b2
+ + sphinx-copybutton==0.5.2
+ + sphinx-inline-tabs==2025.12.21.14
+ + sphinx-notfound-page==1.1.0
+ + sphinx-reredirects==1.1.0
+ + sphinxcontrib-applehelp==2.0.0
+ + sphinxcontrib-devhelp==2.0.0
+ + sphinxcontrib-htmlhelp==2.1.0
+ + sphinxcontrib-jsmath==2.0.0
+ + sphinxcontrib-qthelp==2.0.0
+ + sphinxcontrib-serializinghtml==2.0.0
+ + sqlalchemy==2.1.6
+ + time-machine==3.5.1
+ + tomli==2.5.0
+ + toolz==1.2.0
+ + ty==0.0.87
+ + types-jsonschema==4.26.0.20261006
+ + types-pyyaml==6.0.12.20260906
+ + types-simplejson==4.2.0.20261006
+ + typing-extensions==4.16.0
+ + universal-pathlib==0.3.10
+ + url-normalize==3.0.1
+ + urllib3==2.8.0
+ + xdoctest==1.3.2
+ + zipp==4.1.2
+== pytest ==
+
+------------------------------------------------------ benchmark: 1 tests -----------------------------------------------------
+Name (time in ms)                        Min      Max     Mean  StdDev   Median      IQR  Outliers      OPS  Rounds  Iterations
+-------------------------------------------------------------------------------------------------------------------------------
+test_bench_simple_map_transforms     73.4009  88.6952  81.0230  5.4539  79.7363  10.0956       7;0  12.3422      14           1
+-------------------------------------------------------------------------------------------------------------------------------
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean
+============================= slowest 10 durations =============================
+1.30s call     tests/core/test_mapper.py::test_bench_simple_map_transforms
+0.05s call     tests/core/test_mapper.py::test_mapped_stream[builtin_variable_stream_name]
+0.01s setup    tests/core/test_mapper.py::test_map_transforms
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[sourced_stream_1]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[keep_all_fields]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[aliased_stream]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[drop_property_null_string]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[filter_records_cast_to_bool]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[aliased_stream_batch]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[only_mapped_fields]
+=========================== short test summary info ============================
+FAILED tests/core/test_mapper.py::test_mapped_stream[fake_credit_card_number]
+FAILED tests/core/test_mapper.py::test_mapped_stream[fake_email_seed_instance]
+2 failed, 41 passed in 5.30s
+== versions ==
+singer-sdk(dist): 0.55.0b8.dev5+g6d61a4090
+simpleeval: 1.0.8
+simpleeval file: /mnt/c/Projects/oss/meltano-sdk-wt-main-6d61a40/.venv/lib/python3.12/site-packages/simpleeval.py
+python: 3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]

@@ -1,0 +1,49 @@
+== v0.53.7 worktree HEAD: a520f7cc5e1715d911ad1d553e7e91e96e32698e
+Downloading faker (1.9MiB)
+ Downloaded faker
+Prepared 1 package in 1.38s
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 1 package in 7.46s
+ + faker==40.13.0
+== pytest tests/core/test_mapper.py ==
+........................................                                 [100%]
+=============================== warnings summary ===============================
+tests/conftest.py:12
+  /mnt/c/Projects/oss/meltano-sdk-wt-v0.53.7/tests/conftest.py:12: SingerSDKDeprecationWarning: Importing SQLTarget from singer_sdk is deprecated. Please import from singer_sdk.sql instead: from singer_sdk.sql import SQLTarget
+    from singer_sdk import SQLTarget
+
+tests/conftest.py:14
+  /mnt/c/Projects/oss/meltano-sdk-wt-v0.53.7/tests/conftest.py:14: SingerSDKDeprecationWarning: Importing SQLConnector from singer_sdk.connectors.sql is deprecated and will be removed in the next release. Please import from singer_sdk.sql instead.
+    from singer_sdk.connectors.sql import SQLConnector
+
+tests/conftest.py:18
+  /mnt/c/Projects/oss/meltano-sdk-wt-v0.53.7/tests/conftest.py:18: SingerSDKDeprecationWarning: Importing SQLSink from singer_sdk.sinks.sql is deprecated. Please import from singer_sdk.sql instead.
+    from singer_sdk.sinks.sql import SQLSink
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+------------------------------------------------------ benchmark: 1 tests -----------------------------------------------------
+Name (time in ms)                        Min       Max     Mean  StdDev   Median     IQR  Outliers      OPS  Rounds  Iterations
+-------------------------------------------------------------------------------------------------------------------------------
+test_bench_simple_map_transforms     82.3535  102.3535  88.4022  5.4805  86.8924  5.8591       2;1  11.3119      12           1
+-------------------------------------------------------------------------------------------------------------------------------
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean
+============================= slowest 10 durations =============================
+3.86s setup    tests/core/test_mapper.py::test_map_transforms
+2.23s call     tests/core/test_mapper.py::test_bench_simple_map_transforms
+0.04s call     tests/core/test_mapper.py::test_mapped_stream[non_pk_passthrough]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[changed_key_properties]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[builtin_variable_original_stream_name_no_alias]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[fake_email_seed_instance]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[drop_property]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[only_mapped_fields_null_string]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[sourced_stream_1]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[only_mapped_fields]
+40 passed, 3 warnings in 6.80s
+== exit: 0 ==
+singer-sdk(dist): 0.53.7 | simpleeval: 1.0.7 | faker: 40.13.0

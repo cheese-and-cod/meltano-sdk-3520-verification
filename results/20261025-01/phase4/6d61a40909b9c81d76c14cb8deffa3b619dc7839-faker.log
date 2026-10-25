@@ -1,0 +1,35 @@
+== 6d61a40909b9c81d76c14cb8deffa3b619dc7839 worktree HEAD: 6d61a40909b9c81d76c14cb8deffa3b619dc7839
+Downloading faker (2.0MiB)
+ Downloaded faker
+Prepared 1 package in 802ms
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 1 package in 7.49s
+ + faker==40.43.0
+== pytest tests/core/test_mapper.py ==
+...........................................                              [100%]
+
+----------------------------------------------------- benchmark: 1 tests -----------------------------------------------------
+Name (time in ms)                        Min      Max     Mean  StdDev   Median     IQR  Outliers      OPS  Rounds  Iterations
+------------------------------------------------------------------------------------------------------------------------------
+test_bench_simple_map_transforms     74.1941  78.5734  76.6841  1.3343  76.3739  2.1803       6;0  13.0405      14           1
+------------------------------------------------------------------------------------------------------------------------------
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean
+============================= slowest 10 durations =============================
+3.82s setup    tests/core/test_mapper.py::test_map_transforms
+1.22s call     tests/core/test_mapper.py::test_bench_simple_map_transforms
+0.04s call     tests/core/test_mapper.py::test_mapped_stream[builtin_variable_stream_name]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[aliased_stream_not_expr]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[keep_all_fields]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[dates]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[only_mapped_fields_null_string]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[builtin_variable_stream_name_alias]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[only_mapped_fields]
+0.01s call     tests/core/test_mapper.py::test_mapped_stream[builtin_variable_original_stream_name_alias]
+43 passed in 5.80s
+== exit: 0 ==
+singer-sdk(dist): 0.55.0b8.dev5+g6d61a4090 | simpleeval: 1.0.8 | faker: 40.43.0

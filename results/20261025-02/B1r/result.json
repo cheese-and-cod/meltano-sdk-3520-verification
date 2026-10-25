@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "script": "/mnt/c/Projects/oss/meltano-sdk-3520-verification/scripts/repro_mapper_3520.py",
+    "executed_at_local": "2026-10-25T15:56:33.573896+09:00",
+    "tz_local": [
+      "JST",
+      "JST"
+    ],
+    "utc_offset": 32400.0,
+    "python_version": "3.12.3",
+    "python_impl": "CPython",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "executable": "/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/B1r/.venv/bin/python",
+    "cwd": "/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/B1r",
+    "argv": [
+      "/mnt/c/Projects/oss/meltano-sdk-3520-verification/scripts/repro_mapper_3520.py",
+      "--out",
+      "/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/B1r/result.json"
+    ],
+    "shadow_datetime_field": false
+  },
+  "packages": {
+    "singer_sdk": {
+      "version": "0.53.5",
+      "module_file": "/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/B1r/.venv/lib/python3.12/site-packages/singer_sdk/__init__.py",
+      "mapper_file": "/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/B1r/.venv/lib/python3.12/site-packages/singer_sdk/mapper.py",
+      "inside_venv": true
+    },
+    "simpleeval": {
+      "version": "1.0.3",
+      "module_file": "/mnt/c/Projects/oss/meltano-sdk-3520-verification/.tmp/repro-3520/20261025-01/B1r/.venv/lib/python3.12/site-packages/simpleeval.py",
+      "inside_venv": true
+    },
+    "python_requires_note": "all cases use the same interpreter/patch version"
+  },
+  "results": [
+    {
+      "key": "issue_original_utcnow",
+      "expr": "datetime.datetime.utcnow().isoformat()",
+      "status": "pass",
+      "error": null,
+      "error_chain": [],
+      "check_error": null,
+      "output_field": "2026-10-25T06:56:33.582179",
+      "passthrough_id_kept": true,
+      "inferred_type": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "format": "date-time"
+      },
+      "schema_error": null,
+      "warnings": [
+        "DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC)."
+      ]
+    },
+    {
+      "key": "issue_example_year",
+      "expr": "int(datetime.date.fromisoformat(create_date).year)",
+      "status": "pass",
+      "error": null,
+      "error_chain": [],
+      "check_error": null,
+      "output_field": 2026,
+      "passthrough_id_kept": true,
+      "inferred_type": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "schema_error": null,
+      "warnings": []
+    },
+    {
+      "key": "control_field_ref",
+      "expr": "id",
+      "status": "pass",
+      "error": null,
+      "error_chain": [],
+      "check_error": null,
+      "output_field": 1,
+      "passthrough_id_kept": true,
+      "inferred_type": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "schema_error": null,
+      "warnings": []
+    },
+    {
+      "key": "control_string_method",
+      "expr": "owner_email.split('@')[1]",
+      "status": "pass",
+      "error": null,
+      "error_chain": [],
+      "check_error": null,
+      "output_field": "example.com",
+      "passthrough_id_kept": true,
+      "inferred_type": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "schema_error": null,
+      "warnings": []
+    },
+    {
+      "key": "helper_json_dumps",
+      "expr": "json.dumps(user, default=str)",
+      "status": "pass",
+      "error": null,
+      "error_chain": [],
+      "check_error": null,
+      "output_field": "{\"name\": \"Alice\", \"age\": 30}",
+      "passthrough_id_kept": true,
+      "inferred_type": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "schema_error": null,
+      "warnings": []
+    }
+  ],
+  "all_pass": true
+}
