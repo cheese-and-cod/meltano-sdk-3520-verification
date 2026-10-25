@@ -1,0 +1,5 @@
+# Plans and verification index
+
+| Topic | Keywords | Documents | Notes |
+|---|---|---|---|
+| meltano/sdk#3520 version-matrix reproduction | 3520, simpleeval, stream map, ModuleWrapper, FeatureNotAvailable, AttributeDoesNotExist, name collision, shadowing | [verification-results-2026-10-25.md](../../verification-results-2026-10-25.md) (report) / [comment-draft-3520.md](../../comment-draft-3520.md) (issue comment) / [results/](../../../results/) (measured data) / [minimal_repro_3520.py](../../../scripts/minimal_repro_3520.py) | Completed 2026-10-25, with four reviews and two follow-up runs. Original expression passes on v0.53.7 / v0.54.9 / main; fails on v0.53.5 with simpleeval >= 1.0.5 (`FeatureNotAvailable`, fixed by #3595). The issue's exact `AttributeDoesNotExist` reproduces via a record property named `datetime` in all five configurations tested (not addressed by #3595). The comment draft asks the reporter which case applies and offers no `record['...']` workaround. Not posted yet. |
