@@ -62,7 +62,7 @@ Without such a property, attribute access on the `datetime` helper works: the ex
 
 There is a separate failure on 0.53.5: it has no upper bound on simpleeval, so a fresh install today pulls simpleeval >= 1.0.5, where `datetime.*` expressions fail with a different error (`FeatureNotAvailable: Sorry, modules are not allowed`). That one was fixed in #3595 (0.53.7 and 0.54.0+).
 
-Full version matrix and logs: <REPO_URL>
+Full version matrix and logs: https://github.com/cheese-and-cod/meltano-sdk-3520-verification
 
 Could you share:
 
@@ -85,7 +85,6 @@ That would tell us which case this is. Happy to follow up from there.
 
 - [ ] Re-check the issue for new comments or state changes.
 - [ ] Confirm versions still match (0.54.9 is the latest release and main is `6d61a40` as of 2026-10-25); update the comment if newer releases exist.
-- [ ] Replace `<REPO_URL>` with the public URL of this repository, or drop that line if it is not published.
 - [ ] No @mentions; the questions to the reporter are enough.
 - [ ] AI disclosure is not customary for comments in this repo (it is done with `Co-authored-by` on commits and PRs).
 
